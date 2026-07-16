@@ -1,0 +1,333 @@
+/* foro — brutalismo web heredado de paac.cat:
+   courier para nav/metadatos, times bold gigante para titulares,
+   helvetica para cuerpo, bloques planos de color, cero border-radius. */
+
+:root {
+  --mono: "Courier New", Courier, monospace;
+  --serif: "Times New Roman", Times, serif;
+  --sans: Helvetica, Arial, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--sans);
+  color: #000;
+  background: #fff;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.25rem;
+}
+
+a { color: inherit; }
+
+.site-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.site-name {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-decoration: underline;
+}
+
+.meta {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+
+sup {
+  font-family: var(--mono);
+  font-weight: 400;
+  font-size: 0.45em;
+  margin-left: 0.3em;
+}
+
+/* ── listado de preguntas ── */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  display: block;
+  padding: 1rem;
+  min-height: 190px;
+  text-decoration: none;
+}
+
+.card h2 {
+  font-family: var(--serif);
+  font-size: 2.3rem;
+  line-height: 1.02;
+  margin-top: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.card:hover h2 { text-decoration: underline; }
+
+/* ── hilo ── */
+
+.back { display: inline-block; margin-bottom: 0.75rem; }
+
+.question {
+  padding: 1.5rem 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.question h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.4rem, 7vw, 4.5rem);
+  line-height: 1;
+  margin: 0.5rem 0;
+  overflow-wrap: anywhere;
+}
+
+.question p { max-width: 65ch; margin-top: 0.75rem; }
+
+.reply {
+  border-top: 1px solid #000;
+  padding: 1rem 0;
+}
+
+.reply.pending { opacity: 0.55; }
+
+.reply p {
+  margin-top: 0.5rem;
+  max-width: 65ch;
+  overflow-wrap: anywhere;
+}
+
+.quote { font-family: var(--mono); font-size: 0.9em; }
+
+.reply:target { outline: 3px solid #000; outline-offset: 4px; }
+
+.media {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.media img {
+  max-height: 180px;
+  max-width: 100%;
+  display: block;
+  border: 1px solid #000;
+}
+
+/* ── composer / formularios ── */
+
+.composer {
+  border-top: 3px solid #000;
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+textarea, input[type="text"], input[type="password"], input:not([type]) {
+  font-family: var(--sans);
+  font-size: 1rem;
+  border: 1px solid #000;
+  border-radius: 0;
+  padding: 0.55rem;
+  width: 100%;
+  background: #fff;
+}
+
+textarea { resize: vertical; }
+
+.composer-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.composer-row input { flex: 1; min-width: 160px; width: auto; }
+
+.btn {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 0;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  text-transform: lowercase;
+}
+
+.btn:hover { background: #000; color: #fff; }
+
+.previews { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+.preview { position: relative; }
+
+.preview img {
+  height: 80px;
+  display: block;
+  border: 1px solid #000;
+}
+
+.preview button {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 0;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+/* ── admin ── */
+
+.mono-title {
+  font-family: var(--mono);
+  font-size: 1rem;
+  margin: 2.25rem 0 1rem;
+}
+
+.swatches { display: flex; gap: 0.6rem; }
+
+.swatch {
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 1px solid #000;
+  position: relative;
+  cursor: pointer;
+}
+
+.swatch input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.swatch:has(input:checked) {
+  outline: 3px solid #000;
+  outline-offset: 2px;
+}
+
+.q-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border-top: 1px solid #000;
+  padding: 0.6rem 0;
+  flex-wrap: wrap;
+}
+
+/* ── extras ── */
+
+.btn-xs { font-size: 0.7rem; padding: 0.2rem 0.5rem; }
+
+.card.closed { opacity: 0.55; }
+.card.closed:hover { opacity: 1; }
+
+.trip { font-family: var(--mono); font-size: 0.9em; opacity: 0.65; }
+
+/* ── encuesta ── */
+
+.poll {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 34rem;
+}
+
+.poll-option {
+  position: relative;
+  border: 1px solid #000;
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #fff;
+}
+
+.poll-option.mine { outline: 3px solid #000; outline-offset: -1px; }
+
+.poll-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+}
+
+.poll-text { position: relative; flex: 1; }
+.poll-option .meta, .poll-option .btn { position: relative; }
+
+/* ── encuestas ── */
+
+.poll {
+  margin-top: 1.25rem;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.poll-option {
+  position: relative;
+  border: 1px solid #000;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.5rem 0.6rem;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.poll-bar {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  background: #000;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.poll-option.mine { outline: 3px solid #000; outline-offset: -1px; }
+
+.poll-text { flex: 1; position: relative; }
+
+.poll-option .btn, .poll-option .meta { position: relative; }
+
+/* ── varios ── */
+
+.btn-xs { padding: 0.15rem 0.45rem; font-size: 0.7rem; }
+
+.trip { font-family: var(--mono); font-size: 0.85em; }
+
+.card.closed { opacity: 0.6; }
+.card.closed:hover { opacity: 1; }
+
+.q-row {
+  border-top: 1px solid #000;
+  padding: 0.75rem 0;
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.q-row h3 {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex: 1;
+  min-width: 200px;
+}

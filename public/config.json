@@ -1,0 +1,41 @@
+{
+  "name": "foro",
+  "client": "PAAC",
+  "lang": "ca",
+  "palette": ["#7EFF9A", "#86D3FF", "#FF866B", "#977DFF"],
+  "moderationQueue": true,
+  "aliasRequired": false,
+  "media": {
+    "images": true,
+    "files": false,
+    "maxImageMB": 4,
+    "maxImagesPerReply": 4
+  },
+  "texts": {
+    "tagline": "preguntes obertes · respostes anònimes",
+    "question": "pregunta",
+    "back": "totes les preguntes",
+    "anonymous": "anònim",
+    "closed": "tancada",
+    "loading": "carregant…",
+    "empty": "encara no hi ha preguntes",
+    "noReplies": "sigues la primera a respondre",
+    "composerTitle": "respon (anònimament si vols)",
+    "bodyPlaceholder": "escriu la teva resposta… (cita amb >>N)",
+    "aliasPlaceholder": "nom o àlies (opcional) · nom#clau per firmar",
+    "archive": "arxiu",
+    "pinnedBadge": "fixada",
+    "deleteBtn": "esborrar",
+    "vote": "votar",
+    "votes": "vots",
+    "voted": "has votat ✓",
+    "alreadyVoted": "ja has votat",
+    "attach": "imatges",
+    "send": "publicar",
+    "sending": "publicant…",
+    "compressing": "comprimint…",
+    "emptyReply": "la resposta és buida",
+    "pendingBadge": "pendent de moderació",
+    "pendingMsg": "rebuda! apareixerà quan passi la moderació ✓"
+  }
+}

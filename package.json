@@ -1,0 +1,13 @@
+{
+  "name": "foro",
+  "private": true,
+  "scripts": {
+    "dev": "npx wrangler dev --port ${PORT:-8787}",
+    "deploy": "npx wrangler deploy",
+    "db:migrate": "npx wrangler d1 execute shop --local --file schema.sql",
+    "db:migrate:remote": "npx wrangler d1 execute shop --remote --file schema.sql",
+    "db:migrate:001": "npx wrangler d1 execute shop --local --file migrations/001_polls_trip.sql",
+    "db:migrate:001:remote": "npx wrangler d1 execute shop --remote --file migrations/001_polls_trip.sql",
+    "r2:create": "npx wrangler r2 bucket create foro-media"
+  }
+}
