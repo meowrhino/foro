@@ -199,8 +199,8 @@ la meta: que el mismo código sirva para la PAAC hoy y para cualquier cliente ma
 - [ ] **publicación directa vs cola de aprobación** — para algo con nombre institucional (PAAC) detrás, la cola de aprobación cubre las espaldas y es trivial (campo `status`). recomendación: cola ON por defecto, desactivable por pregunta.
 - [ ] **solo texto vs media** — recomendación: texto + imágenes en el mvp (el conversor ya existe, es la parte gratis); archivos en fase 2. solo-texto simplifica moderación pero pierde lo que hace especial la fusión.
 - [ ] respuestas **anidadas** (hilos tipo twoitter) vs **planas numeradas** (tipo imageboard/foro clásico). lo plano-numerado es más "internet anterior" y más simple.
-- [ ] ¿tripcodes? (identidad pseudónima verificable sin cuenta, como 4chan: alias#contraseña → hash) — muy del espíritu del proyecto.
-- [ ] ¿las preguntas caducan/se archivan? un "arxiu" de preguntas cerradas conectaría los dos proyectos también conceptualmente.
+- [x] tripcodes → hechos (`nom#clau` → `nom !hash`)
+- [x] arxiu de preguntas cerradas → hecho (sección "arxiu" en portada; cerrar/reabrir/fijar desde el panel)
 - [ ] idiomas: paac.cat es ca/es/en. ¿el foro en catalán con ui mínima trilingüe?
 - [x] nombre del proyecto → **foro**
 - [x] infra de pruebas → d1 `shop` con tablas `foro_*` (patrón shop/tatara)
