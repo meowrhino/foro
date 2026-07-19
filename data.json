@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "id": "3b0a2480",
+      "title": "test",
+      "body": "nos gustan los artistas????",
+      "color": 0,
+      "pinned": 0,
+      "created_at": "2026-07-14 14:45:12",
+      "closed_at": null
+    }
+  ],
+  "replies": [
+    {
+      "id": "d3291d14",
+      "question_id": "3b0a2480",
+      "num": 1,
+      "alias": "manu",
+      "body": "no",
+      "status": "ok",
+      "ip_hash": "ad91b3a6e6592a30",
+      "created_at": "2026-07-14 14:45:21",
+      "trip": null
+    },
+    {
+      "id": "b463905d",
+      "question_id": "3b0a2480",
+      "num": 2,
+      "alias": "jordi",
+      "body": "si",
+      "status": "ok",
+      "ip_hash": "ad91b3a6e6592a30",
+      "created_at": "2026-07-14 14:45:26",
+      "trip": null
+    }
+  ],
+  "media": [],
+  "poll_options": [],
+  "poll_votes": []
+}
