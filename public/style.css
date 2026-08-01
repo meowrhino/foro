@@ -221,57 +221,6 @@ textarea { resize: vertical; }
   outline-offset: 2px;
 }
 
-.q-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  border-top: 1px solid #000;
-  padding: 0.6rem 0;
-  flex-wrap: wrap;
-}
-
-/* ── extras ── */
-
-.btn-xs { font-size: 0.7rem; padding: 0.2rem 0.5rem; }
-
-.card.closed { opacity: 0.55; }
-.card.closed:hover { opacity: 1; }
-
-.trip { font-family: var(--mono); font-size: 0.9em; opacity: 0.65; }
-
-/* ── encuesta ── */
-
-.poll {
-  margin-top: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-width: 34rem;
-}
-
-.poll-option {
-  position: relative;
-  border: 1px solid #000;
-  padding: 0.5rem 0.6rem;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  background: #fff;
-}
-
-.poll-option.mine { outline: 3px solid #000; outline-offset: -1px; }
-
-.poll-bar {
-  position: absolute;
-  inset: 0 auto 0 0;
-  background: rgba(0, 0, 0, 0.12);
-  pointer-events: none;
-}
-
-.poll-text { position: relative; flex: 1; }
-.poll-option .meta, .poll-option .btn { position: relative; }
-
 /* ── encuestas ── */
 
 .poll {
@@ -310,7 +259,7 @@ textarea { resize: vertical; }
 
 .btn-xs { padding: 0.15rem 0.45rem; font-size: 0.7rem; }
 
-.trip { font-family: var(--mono); font-size: 0.85em; }
+.trip { font-family: var(--mono); font-size: 0.85em; opacity: 0.65; }
 
 .card.closed { opacity: 0.6; }
 .card.closed:hover { opacity: 1; }
@@ -319,15 +268,8 @@ textarea { resize: vertical; }
   border-top: 1px solid #000;
   padding: 0.75rem 0;
   display: flex;
+  justify-content: space-between;
   gap: 0.75rem;
   align-items: baseline;
   flex-wrap: wrap;
-}
-
-.q-row h3 {
-  font-family: var(--serif);
-  font-size: 1.5rem;
-  font-weight: 700;
-  flex: 1;
-  min-width: 200px;
 }

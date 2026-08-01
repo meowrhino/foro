@@ -48,7 +48,13 @@ function route() {
 
 async function renderList() {
   app.innerHTML = `<p class="meta">${TXT.loading}</p>`;
-  const { questions } = await api("/questions");
+  let questions;
+  try {
+    ({ questions } = await api("/questions"));
+  } catch (err) {
+    app.innerHTML = `<p class="meta">${esc(err.message)}</p>`;
+    return;
+  }
   if (!questions.length) {
     app.innerHTML = `<p class="meta">${TXT.empty}</p>`;
     return;
@@ -162,7 +168,7 @@ function composerHtml() {
     <textarea name="body" rows="4" placeholder="${TXT.bodyPlaceholder}"></textarea>
     <div class="previews" id="previews"></div>
     <div class="composer-row">
-      <input name="alias" placeholder="${TXT.aliasPlaceholder}" maxlength="40" autocomplete="off">
+      <input name="alias" placeholder="${TXT.aliasPlaceholder}" maxlength="40" autocomplete="off"${CFG.aliasRequired ? " required" : ""}>
       ${CFG.media.images ? `<label class="btn">${TXT.attach}<input type="file" id="file-input" accept="image/*" multiple hidden></label>` : ""}
       <button type="submit" class="btn">${TXT.send}</button>
     </div>
@@ -223,6 +229,10 @@ function setupComposer(questionId) {
     const body = form.body.value.trim();
     if (!body && !attached.length) {
       status.textContent = TXT.emptyReply;
+      return;
+    }
+    if (CFG.aliasRequired && !form.alias.value.trim()) {
+      status.textContent = TXT.aliasMissing;
       return;
     }
     const fd = new FormData();

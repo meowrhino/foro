@@ -23,6 +23,7 @@
     "composerTitle": "respon (anònimament si vols)",
     "bodyPlaceholder": "escriu la teva resposta… (cita amb >>N)",
     "aliasPlaceholder": "nom o àlies (opcional) · nom#clau per firmar",
+    "aliasMissing": "cal un nom o àlies",
     "archive": "arxiu",
     "pinnedBadge": "fixada",
     "deleteBtn": "esborrar",

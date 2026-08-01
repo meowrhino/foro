@@ -49,7 +49,9 @@ async function api(request, env, url) {
     return json({ error: "falta header csrf" }, 403);
   }
 
-  if (method === "POST" && path === "/login") return login(request, env);
+  if (method === "POST" && path === "/login") {
+    return (await rateLimited(request, env)) || login(request, env);
+  }
   if (method === "POST" && path === "/logout") return logout(request);
   if (method === "GET" && path === "/me") return json({ admin: await isAdmin(request, env) });
 
@@ -84,6 +86,14 @@ async function withAdmin(request, env, handler) {
   return handler(request, env);
 }
 
+// rate-limit por ip (binding nativo): Response 429 si se pasa, null si ok
+async function rateLimited(request, env) {
+  if (!env.WRITE_LIMITER) return null;
+  const ip = request.headers.get("cf-connecting-ip") || "0.0.0.0";
+  const { success } = await env.WRITE_LIMITER.limit({ key: ip });
+  return success ? null : json({ error: "massa ràpid — espera un moment" }, 429);
+}
+
 // ── preguntas ────────────────────────────────────────────────────────────────
 
 async function listQuestions(env) {
@@ -107,15 +117,15 @@ async function createQuestion(request, env) {
   if (opts.length === 1 || opts.length > 10) return json({ error: "enquesta: entre 2 i 10 opcions" }, 422);
 
   const id = crypto.randomUUID().slice(0, 8);
-  await env.DB.prepare(
-    `INSERT INTO ${t(env, "questions")} (id, title, body, color) VALUES (?, ?, ?, ?)`
-  ).bind(id, title.trim().slice(0, 200), String(body).trim().slice(0, 4000), Number(color) || 0).run();
-
-  for (let i = 0; i < opts.length; i++) {
-    await env.DB.prepare(
-      `INSERT INTO ${t(env, "poll_options")} (question_id, idx, text) VALUES (?, ?, ?)`
-    ).bind(id, i, opts[i]).run();
-  }
+  const optStmt = env.DB.prepare(
+    `INSERT INTO ${t(env, "poll_options")} (question_id, idx, text) VALUES (?, ?, ?)`
+  );
+  await env.DB.batch([
+    env.DB.prepare(
+      `INSERT INTO ${t(env, "questions")} (id, title, body, color) VALUES (?, ?, ?, ?)`
+    ).bind(id, title.trim().slice(0, 200), String(body).trim().slice(0, 4000), Number(color) || 0),
+    ...opts.map((text, i) => optStmt.bind(id, i, text)),
+  ]);
   return json({ id }, 201);
 }
 
@@ -192,11 +202,8 @@ async function vote(request, env, questionId) {
   ).bind(questionId, Number(idx)).first();
   if (!option) return json({ error: "opció desconeguda" }, 422);
 
-  const ip = request.headers.get("cf-connecting-ip") || "0.0.0.0";
-  if (env.WRITE_LIMITER) {
-    const { success } = await env.WRITE_LIMITER.limit({ key: ip });
-    if (!success) return json({ error: "massa ràpid — espera un moment" }, 429);
-  }
+  const limited = await rateLimited(request, env);
+  if (limited) return limited;
 
   const voter = await getVoter(request, env);
   const { meta } = await env.DB.prepare(
@@ -218,18 +225,17 @@ async function createReply(request, env, questionId) {
   if (!question) return json({ error: "no existeix" }, 404);
   if (question.closed_at) return json({ error: "pregunta tancada" }, 409);
 
+  const limited = await rateLimited(request, env);
+  if (limited) return limited;
   const ip = request.headers.get("cf-connecting-ip") || "0.0.0.0";
-  if (env.WRITE_LIMITER) {
-    const { success } = await env.WRITE_LIMITER.limit({ key: ip });
-    if (!success) return json({ error: "massa ràpid — espera un moment" }, 429);
-  }
 
   const form = await request.formData();
-  let alias = String(form.get("alias") || "").replace(/\s+/g, " ").trim().slice(0, 40) || null;
+  let alias = String(form.get("alias") || "").replace(/\s+/g, " ").trim() || null;
   const body = String(form.get("body") || "").trim().slice(0, 4000);
 
   // tripcode: "nom#clau" → alias "nom" + firma !hash reproducible sin cuenta.
   // quien conoce la clau puede firmar igual en cualquier hilo; nadie puede suplantarla.
+  // el # se separa antes de truncar para no cortar la clau.
   let trip = null;
   if (alias && alias.includes("#")) {
     const [name, ...rest] = alias.split("#");
@@ -237,6 +243,8 @@ async function createReply(request, env, questionId) {
     alias = name.trim() || null;
     if (secret) trip = "!" + (await sha256Hex(`trip:${secret}:${env.AUTH_SECRET || ""}`)).slice(0, 6);
   }
+  if (alias) alias = alias.slice(0, 40);
+  if (CONFIG.aliasRequired && !alias) return json({ error: "falta el nom o àlies" }, 422);
   const files = form.getAll("files").filter((f) => f instanceof File && f.size > 0);
 
   const mediaCfg = CONFIG.media || {};
@@ -255,23 +263,27 @@ async function createReply(request, env, questionId) {
   const status = CONFIG.moderationQueue ? "pending" : "ok";
   const ipHash = (await sha256Hex(ip + (env.AUTH_SECRET || ""))).slice(0, 16);
 
+  // num en la misma sentencia: dos respuestas simultáneas no pueden repetir número
   const { num } = await env.DB.prepare(
-    `SELECT COALESCE(MAX(num), 0) + 1 AS num FROM ${t(env, "replies")} WHERE question_id = ?`
-  ).bind(questionId).first();
-
-  await env.DB.prepare(
     `INSERT INTO ${t(env, "replies")} (id, question_id, num, alias, trip, body, status, ip_hash)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-  ).bind(id, questionId, num, alias, trip, body, status, ipHash).run();
+     SELECT ?, ?, COALESCE(MAX(num), 0) + 1, ?, ?, ?, ?, ?
+       FROM ${t(env, "replies")} WHERE question_id = ?
+     RETURNING num`
+  ).bind(id, questionId, alias, trip, body, status, ipHash, questionId).first();
 
-  for (let i = 0; i < files.length; i++) {
-    const f = files[i];
-    const key = `m/${id}/${i}.${IMAGE_TYPES[f.type]}`;
-    await env.MEDIA.put(key, f.stream(), { httpMetadata: { contentType: f.type } });
-    await env.DB.prepare(
+  if (files.length) {
+    const stmt = env.DB.prepare(
       `INSERT INTO ${t(env, "media")} (id, reply_id, r2_key, kind, size, original_name)
        VALUES (?, ?, ?, 'image', ?, ?)`
-    ).bind(crypto.randomUUID().slice(0, 8), id, key, f.size, f.name || null).run();
+    );
+    const rows = [];
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      const key = `m/${id}/${i}.${IMAGE_TYPES[f.type]}`;
+      await env.MEDIA.put(key, f.stream(), { httpMetadata: { contentType: f.type } });
+      rows.push(stmt.bind(crypto.randomUUID().slice(0, 8), id, key, f.size, f.name || null));
+    }
+    await env.DB.batch(rows);
   }
 
   return json({ id, num, status }, 201);
@@ -392,12 +404,15 @@ async function attachMedia(env, replies) {
 }
 
 async function serveMedia(env, key) {
+  // solo media de respuestas (m/*): el bucket también guarda backups (backup/*)
+  if (!key.startsWith("m/")) return new Response("no existeix", { status: 404 });
   const obj = await env.MEDIA.get(key);
   if (!obj) return new Response("no existeix", { status: 404 });
   return new Response(obj.body, {
     headers: {
       "content-type": obj.httpMetadata?.contentType || "application/octet-stream",
       "cache-control": "public, max-age=31536000, immutable",
+      "x-content-type-options": "nosniff",
     },
   });
 }
